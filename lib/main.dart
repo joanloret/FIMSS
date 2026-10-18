@@ -8,10 +8,12 @@ import 'screens/mi_turno_screen.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await Supabase.initialize(
-    url: supabaseUrl,
-    publishableKey: supabasePublishableKey,
-  );
+  if (isSupabaseConfigured) {
+    await Supabase.initialize(
+      url: supabaseUrl,
+      publishableKey: supabasePublishableKey,
+    );
+  }
 
   runApp(const FimssApp());
 }
@@ -31,7 +33,56 @@ class FimssApp extends StatelessWidget {
         ),
         scaffoldBackgroundColor: const Color(0xFFF5F7F6),
       ),
-      home: const HomeScreen(),
+      home: isSupabaseConfigured
+          ? const HomeScreen()
+          : const SupabaseConfigurationScreen(),
+    );
+  }
+}
+
+class SupabaseConfigurationScreen extends StatelessWidget {
+  const SupabaseConfigurationScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: SafeArea(
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 520),
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(
+                    Icons.settings_suggest_outlined,
+                    size: 56,
+                    color: Color(0xFF006B54),
+                  ),
+                  const SizedBox(height: 20),
+                  const Text(
+                    'FIMSS requiere configuración',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  const Text(
+                    'Esta compilación no incluye la URL y la clave pública de Supabase. '
+                    'Configura SUPABASE_URL y SUPABASE_PUBLISHABLE_KEY al compilar. '
+                    'No incluyas claves secretas ni service_role en la aplicación.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 15, color: Colors.black54),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
